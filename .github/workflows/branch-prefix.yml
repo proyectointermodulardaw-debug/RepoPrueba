@@ -1,0 +1,17 @@
+name: branch prefix check
+
+on:
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: comprobar prefijo de la rama
+        run: |
+          BRANCH="${{ github.head_ref }}"
+
+          if [[ "$BRANCH" != feature/* ]] && [[ "$BRANCH" != fix/* ]] && [[ "$BRANCH" != refactor/* ]] && [[ "$BRANCH" != docs/* ]] && [[ "$BRANCH" != chore/* ]]; then
+            echo "ERROR: Prefijo de rama inválido. Usa feature/, fix/ o refactor/"
+            exit 1
+          fi
