@@ -4,7 +4,7 @@ import os
 import json
 import hashlib
 from datetime import datetime, timezone
-from typing import Any, Iterable, List, Dict
+from typing import Any, Iterable, List, Dict, Optional
 
 import requests
 
@@ -14,8 +14,96 @@ from firebase_admin import initialize_app
 from firebase_admin import firestore as admin_fs
 
 # ---------- Opciones globales ----------
-set_global_options(region="europe-west1", max_instances=5, timeout_sec=120)
+set_global_options(
+    region="europe-west1",
+    max_instances=5,
+    timeout_sec=120,
+    secrets=["AEMET_API_KEY"]  # 👈 añade esto aquí
+)
 
+# ---------- AEMET: predicción por CCAA (hoy) ----------
+AEMET_BASE = "https://opendata.aemet.es/opendata/api/prediccion/ccaa/hoy"
+# ---------- AEMET helpers ----------
+def _resolve_aemet_key(req: https_fn.Request) -> str:
+    """
+    Intenta obtener la API key de AEMET en este orden:
+      1) Env var (Functions Gen2 con secrets, o .env.local en emulador)
+      2) Cabecera HTTP 'x-aemet-key' (útil para pruebas locales o curl)
+      3) Query string ?key=... o ?apiKey=...
+    Lanza RuntimeError si no encuentra ninguna.
+    """
+    # 1) Entorno (lo normal en producción con secrets)
+    env_key = os.getenv("AEMET_API_KEY")
+    if env_key:
+        return env_key.strip()
+
+    # 2) Header
+    hdr_key = req.headers.get("x-aemet-key")
+    if hdr_key:
+        return hdr_key.strip()
+
+    # 3) Query
+    qs_key = req.args.get("key") or req.args.get("apiKey") or req.args.get("apikey")
+    if qs_key:
+        return qs_key.strip()
+
+    raise RuntimeError("AEMET_API_KEY not found (env|header|query).")
+
+def _get_secret(name: str) -> str:
+    """
+    Lee un secreto expuesto como variable de entorno en Functions Gen2.
+    En Firebase Console → Build → Functions → Secrets, vincula AEMET_API_KEY
+    a esta función para que aparezca como env var.
+    """
+    val = os.getenv(name)
+    if not val:
+        raise RuntimeError(f"Secret env var '{name}' not found.")
+    return val
+
+def _fetch_aemet_ccaa_hoy(ccaa: str, api_key: str) -> dict:
+    """
+    1) GET AEMET .../ccaa/hoy/{ccaa}?api_key=...  -> devuelve JSON con 'datos' (URL temporal)
+    2) GET a 'datos' -> devuelve el JSON real (a veces text/plain con JSON dentro)
+    Retorna un dict serializable.
+    """
+    # Primer salto: metadatos con URL de descarga
+    url = f"{AEMET_BASE}/{ccaa}"
+    r1 = requests.get(
+        url,
+        params={"api_key": api_key},
+        headers={"cache-control": "no-cache"},
+        timeout=30,
+    )
+    r1.raise_for_status()
+    meta = r1.json()
+    datos_url: Optional[str] = meta.get("datos")
+    if not datos_url:
+        raise RuntimeError(f"Respuesta AEMET sin 'datos': {meta}")
+
+    # Segundo salto: descarga real
+    r2 = requests.get(datos_url, timeout=30)
+    r2.raise_for_status()
+    try:
+        payload = r2.json()
+    except ValueError:
+        payload = {"raw": r2.text}
+
+    # Normaliza salida
+    if isinstance(payload, list):
+        return {"ccaa": ccaa, "data": payload, "source": url}
+    elif isinstance(payload, dict):
+        payload.setdefault("ccaa", ccaa)
+        payload.setdefault("source", url)
+        return payload
+    else:
+        return {"ccaa": ccaa, "data": payload, "source": url}
+    
+def _cors_response(body: str, status: int = 200, mimetype: str = "application/json") -> https_fn.Response:
+    resp = https_fn.Response(body, status=status, mimetype=mimetype)
+    resp.headers["Access-Control-Allow-Origin"] = "*"
+    resp.headers["Access-Control-Allow-Methods"] = "GET, OPTIONS"
+    resp.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+    return resp
 # Inicializa Admin SDK una vez por contenedor
 _app = None
 def _get_db():
@@ -290,3 +378,43 @@ def regfi_snapshot_http(req: https_fn.Request) -> https_fn.Response:
             mimetype="application/json",
             status=500,
         )
+# ---------- Endpoint AEMET CCAA (hoy) ----------
+@https_fn.on_request()
+def aemet_ccaa_hoy(req: https_fn.Request) -> https_fn.Response:
+    """
+    Endpoint HTTP para pedir AEMET CCAA (hoy).
+
+    Formatos aceptados:
+      - Ruta con segmento final:  /aemet/ccaa/<CCAA>
+        Ej: https://.../aemet_ccaa_hoy/aemet/ccaa/MU
+      - Query string:            ?ccaa=MU
+
+    Devuelve JSON.
+    """
+    if req.method == "OPTIONS":
+        return _cors_response("", status=204)
+
+    # Extrae CCAA desde la ruta o la query
+    path = (req.path or "").strip("/")
+    parts = [p for p in path.split("/") if p]
+    ccaa = None
+    try:
+        idx = parts.index("ccaa")
+        if idx + 1 < len(parts):
+            ccaa = parts[idx + 1]
+    except ValueError:
+        pass
+
+    if not ccaa:
+        ccaa = req.args.get("ccaa")
+
+    if not ccaa:
+        return _cors_response(json.dumps({"ok": False, "error": "Falta parámetro CCAA (en ruta o ?ccaa=)"}), status=400)
+
+    try:
+        api_key = _resolve_aemet_key(req)
+        data = _fetch_aemet_ccaa_hoy(ccaa.upper(), api_key)
+        return _cors_response(json.dumps(data, ensure_ascii=False))
+    except Exception as e:
+        err = {"ok": False, "error": str(e), "ccaa": ccaa}
+        return _cors_response(json.dumps(err, ensure_ascii=False), status=500)
