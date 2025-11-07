@@ -1,0 +1,70 @@
+name: Notify Telegram
+
+on:
+  push:            # <- sin 'branches', así pilla TODAS las ramas y también tags
+  pull_request:    # PR en cualquier rama
+    types: [opened, closed, reopened, synchronize]
+  release:
+    types: [published]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify (push)
+        if: github.event_name == 'push'
+        run: |
+          # Para push a branch o a tag
+          REF_NAME="${GITHUB_REF_NAME}"   # rama o tag
+          ACTOR="${GITHUB_ACTOR}"
+          REPO="${GITHUB_REPOSITORY}"
+
+          # Lista de commits (si los hay; en push de tag puede venir vacío)
+          if jq -e '.commits | length > 0' "$GITHUB_EVENT_PATH" > /dev/null; then
+            COMMITS=$(jq -r '.commits[] | "- \(.message) [\(.id[0:7])] by \(.author.username // .author.name)"' "$GITHUB_EVENT_PATH")
+          else
+            COMMITS="(sin lista de commits — puede ser un tag o fast-forward)"
+          fi
+
+          COMMITS_ENC=$(printf "%s" "$COMMITS" | jq -s -R -r @uri)
+          TEXT="📦 Repo: ${REPO}%0A🔀 Ref: ${REF_NAME}%0A👤 Actor: ${ACTOR}%0A📝 Commits:%0A${COMMITS_ENC}"
+
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
+            -d message_thread_id="${{ secrets.TELEGRAM_TOPIC_ID }}" \
+            -d text="$TEXT" \
+            -d disable_web_page_preview=true > /dev/null
+
+      - name: Notify (pull_request)
+        if: github.event_name == 'pull_request'
+        run: |
+          ACTION="${{ github.event.action }}"
+          NUMBER="${{ github.event.number }}"
+          TITLE=$(jq -r '.pull_request.title' "$GITHUB_EVENT_PATH")
+          URL=$(jq -r '.pull_request.html_url' "$GITHUB_EVENT_PATH")
+          MERGED=$(jq -r '.pull_request.merged // false' "$GITHUB_EVENT_PATH")
+          if [ "$ACTION" = "closed" ] && [ "$MERGED" = "true" ]; then
+            ACTION="merged"
+          fi
+
+          TEXT=$(printf "🔔 PR %s: #%s\n🧩 %s\n🔗 %s\n👤 %s" "$ACTION" "$NUMBER" "$TITLE" "$URL" "${GITHUB_ACTOR}" | jq -s -R -r @uri)
+
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
+            -d message_thread_id="${{ secrets.TELEGRAM_TOPIC_ID }}" \
+            -d text="$TEXT" \
+            -d disable_web_page_preview=true > /dev/null
+
+      - name: Notify (release)
+        if: github.event_name == 'release'
+        run: |
+          NAME="${{ github.event.release.name }}"
+          TAG="${{ github.event.release.tag_name }}"
+          URL="${{ github.event.release.html_url }}"
+          TEXT=$(printf "🚀 Release publicada:\n🏷️ %s (%s)\n🔗 %s\n👤 %s" "$NAME" "$TAG" "$URL" "${GITHUB_ACTOR}" | jq -s -R -r @uri)
+
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
+            -d message_thread_id="${{ secrets.TELEGRAM_TOPIC_ID }}" \
+            -d text="$TEXT" \
+            -d disable_web_page_preview=true > /dev/null
