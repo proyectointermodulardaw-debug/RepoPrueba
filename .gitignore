@@ -67,3 +67,10 @@ node_modules/
 
 # dataconnect generated files
 .dataconnect
+
+
+# Service account y credenciales @David
+serviceAccount.json
+*.key.json
+.env
+.env.local
