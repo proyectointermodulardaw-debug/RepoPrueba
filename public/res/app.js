@@ -47,7 +47,7 @@ toggleBtn?.addEventListener('click', () => {    // al hacer clic en el botón
 
   // Cambia el icono según el estado
   const eyeIcon = document.getElementById("eyeIcon");  // el icono del ojo
-  eyeIcon.src = isHidden ? "res/open-eye.png" : "res/close-eye.png";
+  eyeIcon.src = isHidden ? "res/open-eye.svg" : "res/close-eye.svg";
 });
 
 // --- Login (submit del formulario) ---
@@ -58,6 +58,10 @@ form?.addEventListener('submit', async (e) => {     // al enviar el formulario
     try {
         // EMAIL.
         const email = emailEl.value.trim();     // obtiene el email
+        const emailCheck = validateEmail(email);   // Chequea que el email sea correcto.
+            if (emailCheck !== true) {
+            throw new Error(emailCheck);  // Lanza excepcion si el email no es válido.
+            }
 
         // CONTRASEÑA.
         const pass = passEl.value;                // obtiene la contraseña
@@ -85,6 +89,10 @@ registerBtn?.addEventListener('click', async () => {  // al hacer clic en el bot
     try {
         // EMAIL.
         const email = emailEl.value.trim();    // obtiene el email
+        const emailCheck = validateEmail(email);   // Chequea que el email sea correcto.
+            if (emailCheck !== true) {
+            throw new Error(emailCheck);   // Lanza excepción si el email es erróneo
+            }
 
         // CONTRASEÑA.
         const pass = passEl.value;             // obtiene la contraseña
@@ -201,4 +209,13 @@ function capsOn() {
 
   emailEl.addEventListener("keyup", verificarCaps);
   passEl.addEventListener("keyup", verificarCaps);
+}
+
+// Función para validar el email.
+function validateEmail(email) {
+  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!regex.test(email)) {
+    return "El email no tiene un formato válido.";
+  }
+  return true;
 }
