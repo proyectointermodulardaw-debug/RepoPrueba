@@ -26,6 +26,25 @@ const firebaseConfig = await res.json();               // Parsea JSON
 const app = initializeApp(firebaseConfig);  // Inicializa Firebase
 const auth = getAuth(app);                   // Inicializa Auth
 
+// --- Snackbar ---
+function showSnackbar(message, type = "info", duration = 3000) {
+  const existing = document.querySelector(".snackbar");
+  if (existing) existing.remove();
+
+  const snackbar = document.createElement("div");
+  snackbar.className = `snackbar ${type}`;
+  snackbar.textContent = message;
+  document.body.appendChild(snackbar);
+
+  void snackbar.offsetWidth;
+  snackbar.classList.add("show");
+
+  setTimeout(() => {
+    snackbar.classList.remove("show");
+    setTimeout(() => snackbar.remove(), 400);
+  }, duration);
+}
+
 // --- DOM ---
 const form = document.querySelector('form');    // el formulario
 const emailEl = $('#user');                  // el input email
@@ -47,7 +66,7 @@ toggleBtn?.addEventListener('click', () => {    // al hacer clic en el botón
 
   // Cambia el icono según el estado
   const eyeIcon = document.getElementById("eyeIcon");  // el icono del ojo
-  eyeIcon.src = isHidden ? "res/open-eye.svg" : "res/close-eye.svg";
+  eyeIcon.src = isHidden ? "res/assets/icons/pass-show.svg" : "res/assets/icons/pass-hide.svg";
 });
 
 // --- Login (submit del formulario) ---
@@ -72,12 +91,11 @@ form?.addEventListener('submit', async (e) => {     // al enviar el formulario
 
         // INTENTO DE LOGIN.
         const cred = await signInWithEmailAndPassword(auth, email, pass);   // intenta loguear
-        alert(`Sesión iniciada. UID: ${cred.user.uid}`);    // muestra el UID SOLO DEBUG
+        showSnackbar('Sesión iniciada con éxito.', 'success'); // Mensaje de éxito
         // A partir de aquí, redireccion a pagina privada.
 
     } catch (err) {
-        alert(msgFromAuthError(err));   // muestra error amigable SOLO DEBUG
-        console.error(err);               // loguea el error completo
+        showSnackbar(msgFromAuthError(err), 'error');   // muestra error amigable SOLO DEBUG
     } finally {
         setBusy(false);                  // quita el modo "busy"
     }
@@ -102,27 +120,22 @@ registerBtn?.addEventListener('click', async () => {  // al hacer clic en el bot
           }
         
         // INTENTO DE REGISTRO.
-        const cred = await createUserWithEmailAndPassword(auth, email, pass);   // intenta registrar
-        alert(`Usuario creado. UID: ${cred.user.uid}`); // muestra el UID SOLO DEBUG
+        //const cred = await createUserWithEmailAndPassword(auth, email, pass);   // intenta registrar
+        showSnackbar('Todavía no es posible registrarse. Contacta con el administrador.', 'error', 6000); // Mensaje de error
     } catch (err) {
-        alert(msgFromAuthError(err));   // muestra error amigable SOLO DEBUG
-        console.error(err);               // loguea el error completo
+        showSnackbar(msgFromAuthError(err), 'error');   // muestra error amigable SOLO DEBUG
     } finally {
         setBusy(false);                  // quita el modo "busy"
     }
 });
 
 // --- Reset contraseña ---
-forgotLink?.addEventListener('click', async (e) => {    // al hacer clic en el enlace
-    e.preventDefault();                    // evita recargar la página
-    const email = (emailEl.value || prompt('Introduce tu email para recuperar la contraseña') || '').trim();    // pide el email
-    if (!email) return;                    // si no hay email, no hace nada
+forgotLink?.addEventListener('click', () => {    // al hacer clic en el enlace
     try {
-        await sendPasswordResetEmail(auth, email);  // intenta enviar el email
-        alert('Te hemos enviado un email para restablecer la contraseña.'); // confirma envío SOLO DEBUG
+        //await sendPasswordResetEmail(auth, email);  // intenta enviar el email
+        showSnackbar('Funcionalidad de recuperación de contraseña deshabilitada. Contacta con el administrador.', 'error', 6000); // Mensaje de error
     } catch (err) {
-        alert(msgFromAuthError(err));   // muestra error amigable SOLO DEBUG
-        console.error(err);               // loguea el error completo
+        showSnackbar(msgFromAuthError(err), 'error');   // muestra error amigable SOLO DEBUG
     }
 });
 
@@ -138,7 +151,7 @@ function msgFromAuthError(err) {    // recibe un error de Firebase Auth
         case 'auth/wrong-password': // contraseña incorrecta
         case 'auth/user-not-found': return 'Email o contraseña incorrectos.'; // no da pistas
         case 'auth/too-many-requests': return 'Demasiados intentos. Prueba más tarde.'; // muchos intentos
-        default: return `Error: ${code || err}`; // mensaje genérico
+        default: return `${code || err}`; // mensaje genérico
     }
 }
 
