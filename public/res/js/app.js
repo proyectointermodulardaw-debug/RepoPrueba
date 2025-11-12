@@ -66,7 +66,7 @@ toggleBtn?.addEventListener('click', () => {    // al hacer clic en el botón
 
   // Cambia el icono según el estado
   const eyeIcon = document.getElementById("eyeIcon");  // el icono del ojo
-  eyeIcon.src = isHidden ? "res/assets/icons/pass-show.svg" : "res/assets/icons/pass-hide.svg";
+  eyeIcon.src = isHidden ? "../res/assets/icons/pass-show.svg" : "../res/assets/icons/pass-hide.svg";
 });
 
 // --- Login (submit del formulario) ---
@@ -91,7 +91,7 @@ form?.addEventListener('submit', async (e) => {     // al enviar el formulario
 
         // INTENTO DE LOGIN.
         const cred = await signInWithEmailAndPassword(auth, email, pass);   // intenta loguear
-        showSnackbar('Sesión iniciada con éxito.', 'success'); // Mensaje de éxito
+        location.replace("/index.html"); // recarga la página de login para limpiar el formulario
         // A partir de aquí, redireccion a pagina privada.
 
     } catch (err) {
