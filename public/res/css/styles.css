@@ -242,7 +242,7 @@ input:focus {
 /* ================================
    RESPONSIVE SMALL SCREENS
    ================================ */
-@media (max-width: 500px) {
+@media screen and (max-width: 500px) and (orientation: portrait) {
     .login-container {
         padding: 20px 20px;
         width: 300px;
@@ -250,5 +250,27 @@ input:focus {
 
     .label-inicio-sesion h3 {
         margin-bottom: 0.5rem;
+    }
+}
+
+@media screen and (orientation: landscape) {
+    .login-container {
+        padding: 20px 20px;
+        width: 300px;
+        left: 65%;
+    }
+
+    .label-inicio-sesion h3 {
+        margin-bottom: 0.5rem;
+    }
+
+    .button{
+        display: flex;
+        flex-direction: row;
+        gap: 12px;
+    }
+    
+    .logo {
+        left: 25%;
     }
 }
