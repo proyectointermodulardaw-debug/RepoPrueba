@@ -210,33 +210,49 @@ input:focus {
    SNACKBAR (notificaciones)
    ============================ */
 .snackbar {
-  position: fixed;
-  left: 50%;
-  bottom: 24px;
-  transform: translateX(-50%) translateY(100%);
-  background: #333;
-  color: #fff;
-  padding: 14px 20px;
-  border-radius: 8px;
-  font-size: 14px;
-  opacity: 0;
-  pointer-events: none;
-  transition: transform 0.4s ease, opacity 0.4s ease;
-  z-index: 9999;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    position: fixed;
+    left: 50%;
+    bottom: 24px;
+    transform: translateX(-50%) translateY(100%);
+    background: #333;
+    color: #fff;
+    padding: 14px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.4s ease, opacity 0.4s ease;
+    z-index: 9999;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .snackbar.show {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
-  pointer-events: all;
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+    pointer-events: all;
 }
 
 /* Colores temáticos */
-.snackbar.success { background: #3cab4a; }     /* Verde agricultor */
-.snackbar.error { background: #d32f2f; }       /* Rojo error */
-.snackbar.info { background: #1976d2; }        /* Azul informativo */
-.snackbar.warning { background: #ffa000; }     /* Amarillo advertencia */
+.snackbar.success {
+    background: #3cab4a;
+}
+
+/* Verde agricultor */
+.snackbar.error {
+    background: #d32f2f;
+}
+
+/* Rojo error */
+.snackbar.info {
+    background: #1976d2;
+}
+
+/* Azul informativo */
+.snackbar.warning {
+    background: #ffa000;
+}
+
+/* Amarillo advertencia */
 
 
 /* ================================
@@ -253,7 +269,7 @@ input:focus {
     }
 }
 
-@media screen and (orientation: landscape) {
+@media screen and (max-width: 1000px) and (orientation: landscape) {
     .login-container {
         padding: 20px 20px;
         width: 300px;
@@ -264,13 +280,21 @@ input:focus {
         margin-bottom: 0.5rem;
     }
 
-    .button{
+    .button {
         display: flex;
         flex-direction: row;
         gap: 12px;
     }
-    
+
     .logo {
         left: 25%;
+        top: 30%;
+    }
+}
+
+@media screen and (max-height: 900px) and (orientation: landscape) {
+
+    .logo {
+        top: 5%;
     }
 }
