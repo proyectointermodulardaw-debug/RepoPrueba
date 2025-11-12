@@ -74,3 +74,7 @@ serviceAccount.json
 *.key.json
 .env
 .env.local
+
+
+# No guardamos archivos .cache que hay dentro de /.firebase
+.firebase/
