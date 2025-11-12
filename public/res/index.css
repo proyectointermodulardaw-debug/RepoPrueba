@@ -1,0 +1,76 @@
+:root {
+    --fondo: #f3eadf;
+    --verde: #3cab4a;
+    --verde-oscuro: #2f8c3b;
+    --marron: #a97c50;
+    --texto: #333;
+    --blanco: #ffffff;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background-color: var(--fondo);
+    min-height: 100vh;
+}
+
+/* ==============================
+   HEADER / NAV HORIZONTAL
+============================== */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 30px;
+    background-color: var(--blanco);
+    border-bottom: 4px solid var(--verde);
+}
+
+/* BIENVENIDO */
+.header .logo h1 {
+    font-size: 22px;
+    color: var(--verde);
+}
+
+/* FINCAS (centro) */
+.header .fincas {
+    text-align: center;
+}
+
+
+
+/* MI CUENTA (derecha) */
+.mi-cuenta {
+    position: relative;
+}
+
+.mi-cuenta span {
+    font-weight: bold;
+    color: var(--texto);
+    cursor: pointer;
+}
+
+.mi-cuenta ul {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background-color: var(--blanco);
+    list-style: none;
+    padding: 10px;
+    border: 1px solid var(--marron);
+    border-radius: 6px;
+}
+
+.mi-cuenta:hover ul {
+    display: block;
+}
+
+.mi-cuenta ul li {
+    margin: 5px 0;
+}
