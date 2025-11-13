@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro - FitoCheck App</title>
+    <link rel="stylesheet" href="../res/css/styles.css">
+    <link rel="icon" type="image/png" href="../res/assets/favicon/favicon.png">
+</head>
+
+<body>
+    <main class="main-container">
+        <!-- Logo superior -->
+        <div class="logo">
+            <img src="../res/assets/img/logo.svg" alt="Logo de la aplicación">
+            <h1>FitoCheck App</h1>
+        </div>
+
+        <!-- Contenedor principal -->
+        <div class="login-container">
+            <div class="label-inicio-sesion">
+                <h3>Registro de usuario</h3>
+            </div>
+
+            <!-- Formulario de registro -->
+            <form id="registroForm">
+                <div class="input-group">
+                    <label for="nombre">Nombre completo</label>
+                    <input type="text" id="nombre" name="nombre" placeholder="Ej. Ana López" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="email">Correo electrónico</label>
+                    <input type="email" id="email" name="email" placeholder="Introduce tu correo" required>
+                </div>
+
+                <div class="input-group password-field">
+                    <label for="password">Contraseña</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="password" name="password" placeholder="Introduce tu contraseña" required>
+                        <button type="button" id="togglePassword" class="toggle">
+                            <img id="eyeIcon" src="../res/assets/icons/pass-hide.svg" alt="Mostrar contraseña" width="20">
+                        </button>
+                    </div>
+                </div>
+
+                <div class="input-group password-field">
+                    <label for="confirmPassword">Confirmar contraseña</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Repite tu contraseña" required>
+                        <button type="button" id="toggleConfirmPassword" class="toggle">
+                            <img id="eyeIcon2" src="../res/assets/icons/pass-hide.svg" alt="Mostrar contraseña" width="20">
+                        </button>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="rol">Tipo de usuario</label>
+                    <select id="rol" name="rol" required>
+                        <option value="">Selecciona un tipo...</option>
+                        <option value="agricultor">Agricultor</option>
+                        <option value="tecnico">Técnico de campo</option>
+                        <option value="perito">Perito agrícola</option>
+                    </select>
+                </div>
+
+                <div class="input-group checkbox">
+                    <input type="checkbox" id="terminos" required>
+                    <label for="terminos">Acepto los <a href="#">términos y condiciones</a></label>
+                </div>
+
+                <div class="button">
+                    <button type="submit" class="login-buton">Registrarse</button>
+                    <button type="button" class="register-buton" onclick="window.location.href='login.html'">Volver</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        // Alternar visibilidad de contraseñas
+        const togglePassword = document.getElementById("togglePassword");
+        const passwordField = document.getElementById("password");
+        const toggleConfirmPassword = document.getElementById("toggleConfirmPassword");
+        const confirmPasswordField = document.getElementById("confirmPassword");
+
+        togglePassword.addEventListener("click", () => {
+            const type = passwordField.type === "password" ? "text" : "password";
+            passwordField.type = type;
+        });
+
+        toggleConfirmPassword.addEventListener("click", () => {
+            const type = confirmPasswordField.type === "password" ? "text" : "password";
+            confirmPasswordField.type = type;
+        });
+
+        // Validación simple
+        document.getElementById("registroForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+            const pass = passwordField.value;
+            const confirm = confirmPasswordField.value;
+            if (pass !== confirm) {
+                alert("Las contraseñas no coinciden");
+                return;
+            }
+            alert("Registro completado correctamente (simulado).");
+            // Aquí podrías redirigir o guardar los datos
+        });
+    </script>
+
+</body>
+
+</html>
