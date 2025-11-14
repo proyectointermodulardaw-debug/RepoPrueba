@@ -51,7 +51,7 @@ body {
     align-items: center;
     width: 100%;
     gap: 1rem;
-    top: 15%;
+    top: 10%;
     left: 50%;
     transform: translateX(-50%);
     z-index: 10;
@@ -258,6 +258,21 @@ input:focus {
 /* ================================
    RESPONSIVE SMALL SCREENS
    ================================ */
+@media screen and (max-height: 830px) and (orientation: portrait) {
+    .logo {
+        top: 10%;
+    }
+}
+@media screen and (max-height: 720px) and (orientation: portrait) {
+    .logo {
+        top: 5%;
+    }
+}
+@media screen and (max-height: 680px) and (orientation: portrait) {
+    .logo {
+        visibility: hidden;
+    }
+}
 @media screen and (max-width: 500px) and (orientation: portrait) {
     .login-container {
         padding: 20px 20px;
@@ -267,9 +282,10 @@ input:focus {
     .label-inicio-sesion h3 {
         margin-bottom: 0.5rem;
     }
+
 }
 
-@media screen and (max-width: 1000px) and (orientation: landscape) {
+@media screen and (max-height: 515px) and (max-width: 915px) and (orientation: landscape) {
     .login-container {
         padding: 20px 20px;
         width: 300px;
@@ -289,12 +305,5 @@ input:focus {
     .logo {
         left: 25%;
         top: 30%;
-    }
-}
-
-@media screen and (max-height: 900px) and (orientation: landscape) {
-
-    .logo {
-        top: 5%;
     }
 }
