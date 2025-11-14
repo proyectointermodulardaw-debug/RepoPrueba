@@ -1,14 +1,17 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bienvenido a FitoCheck</title>
     <link rel="stylesheet" href="res/css/index.css">
 </head>
+
+    <div id="loader">Cargando...</div>
 <body>
 
-   
+
     <header class="header">
         <div class="logo">
             <h1>Bienvenido a FitoCheck</h1>
@@ -16,7 +19,7 @@
 
         <nav class="fincas">
             <span>Mis fincas</span>
-            
+
         </nav>
 
         <nav class="mi-cuenta">
@@ -24,12 +27,13 @@
             <ul>
                 <li>Historial</li>
                 <li>Informes</li>
-                <li>Cerrar sesión</li>
+                <li id="logoutButton">Cerrar sesión</li>
             </ul>
         </nav>
     </header>
 
-   
-
+    
+    <script type="module" src="res/js/auth-guard.js"></script>
 </body>
+
 </html>
