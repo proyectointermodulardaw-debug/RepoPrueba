@@ -22,12 +22,11 @@ const auth = getAuth(app);                   // Inicializa Auth
 
 // --- DOM ---
 const form = document.querySelector('form');    // el formulario
-const emailEl = $('#user');                  // el input email
-const passEl = $('#password');             // el input contraseña
-const registerBtn = $('.register-buton');   // el botón registrar
-const toggleBtn = $('#togglePassword');              // el botón mostrar/ocultar
-const forgotLink = $('.forgot-password');   // el enlace "olvidé contraseña"
-
+const emailEl = document.getElementById('user');                  // el input email
+const passEl = document.getElementById('password');             // el input contraseña
+const registerBtn = document.querySelector('.register-buton');   // el botón registrar
+const toggleBtn = document.getElementById('togglePassword');              // el botón mostrar/ocultar
+const forgotLink = document.querySelector('.forgot-password');   // el enlace "olvidé contraseña"
 // --- Funciones activas ---
 checkFormReady(); // habilitar botones cuando ambos campos estén rellenos
 checkTiempoRealEmail(); // validación en tiempo real del email
@@ -103,8 +102,9 @@ registerBtn?.addEventListener('click', async () => {  // al hacer clic en el bot
 // --- Reset contraseña ---
 forgotLink?.addEventListener('click', () => {    // al hacer clic en el enlace
     try {
-        //await sendPasswordResetEmail(auth, email);  // intenta enviar el email
-        location.href = '/login/resetpassword/resetpassword.html'; // redirige a la página de restablecimiento de contraseña
+        const email = emailEl.value.trim();
+        localStorage.setItem('resetEmail', email);
+        window.location.href = '/login/resetpassword/resetpassword.html';
     } catch (err) {
         showSnackbar(msgFromAuthError(err), 'error');   // muestra error amigable SOLO DEBUG
     }
@@ -203,3 +203,4 @@ function validateEmail(email) {
   }
   return true;
 }
+

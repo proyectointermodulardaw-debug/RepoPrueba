@@ -9,13 +9,18 @@ const firebaseConfig = await res.json();
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
+const emailInput = document.getElementById('email');
+    const email = emailInput.value;
+    const savedEmail = localStorage.getItem('resetEmail');
+    if (savedEmail) {
+        emailInput.value = savedEmail;
+        localStorage.removeItem('resetEmail');
+    }
 const botonEnviar = document.getElementById('enviarEnlaceRec');
 
 botonEnviar.addEventListener('click', async (e) => {
     e.preventDefault(); // Evita el envío del formulario por defecto
-    const emailInput = document.getElementById('email');
-    const email = emailInput.value;
-
+    const email = emailInput.value.trim();
     try {
         await sendPasswordResetEmail(auth, email);
         showSnackbar('Enlace de restablecimiento enviado. Revisa tu correo.', 'success', 3000);
