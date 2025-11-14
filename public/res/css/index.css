@@ -33,7 +33,7 @@ body {
 
 /* BIENVENIDO */
 .header .logo h1 {
-    font-size: 22px;
+    font-size: 1.75rem;
     color: var(--verde);
 }
 
@@ -43,6 +43,26 @@ body {
 }
 
 
+/* ================================
+   LOGO
+   ================================ */
+
+.logo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: .5rem;
+    z-index: 10;
+}
+
+.logo img {
+    width: 1.5rem;
+    height: auto;
+}
+
+.logo:hover {
+    cursor: pointer;
+}
 
 /* MI CUENTA (derecha) */
 .mi-cuenta {
